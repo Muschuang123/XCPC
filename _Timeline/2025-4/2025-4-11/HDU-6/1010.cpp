@@ -46,25 +46,20 @@ void solve() {
             a.push_back(n - sz[x]);
         }
 
-        i64 sum = accumulate(a.begin(), a.end(), 0LL);
-        
-        i64 ans = sum * sum;
-        for (int i = 0; i < a.size(); i++) {
-            ans -= a[i] * a[i];
+        i64 ans = 0;
+        int k = a.size();
+        vector<i64> pre = a;
+
+        // 计算 f(i, i)
+        i64 fii = n;
+        for (int i = 1; i < k; i++) {
+            fii += pre[i - 1] * a[i];
+            pre[i] += pre[i - 1];
         }
-
-        ans /= 2;
-
-        // 其他数作为根时，自己和其他
-        for (int i = 0; i < a.size(); i++) {
-            ans += (sum - a[i]) * a[i];
+        ans += fii;
+        for (int i = 0; i < k; i++) {
+            ans += (fii - (n - a[i]) * a[i]) * a[i];
         }
-
-        // 自己作为根时，自己和其他
-        ans += sum;
-        
-        // 任意数作为根时，自己和自己
-        ans += n;
 
         cout << ans << ' ';
     }
