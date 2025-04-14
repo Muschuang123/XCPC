@@ -8,3 +8,8 @@ t = rnd();
 for (int i = 1; i <= 1e6; i++) {
     a[i] = rnd();
 }
+
+// 等概率的生成一个区间内的随机数
+pair<int, int> ran(int l, int r) {
+    return uniform_int_distribution{l, r}(rnd);
+}
