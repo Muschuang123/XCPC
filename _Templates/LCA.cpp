@@ -3,7 +3,7 @@ const int maxn = 500005;
 int root = 1;
 vector<int> g[maxn];
 int fa[maxn][__lg(maxn) + 1];
-int depth[maxn], lg2[maxn];
+int dep[maxn], lg2[maxn];
 
 void init() {
     for (int i = 2; i < maxn; i++) {
@@ -12,9 +12,9 @@ void init() {
 }
 
 void lcadfs(int x, int f) {
-    depth[x] = depth[f] + 1;
+    dep[x] = dep[f] + 1;
     fa[x][0] = f;
-    for (int i = 1; i <= lg2[depth[x]]; i++) {
+    for (int i = 1; i <= lg2[dep[x]]; i++) {
         fa[x][i] = fa[fa[x][i - 1]][i - 1];
     }
     for (auto &v : g[x]) {
@@ -26,7 +26,7 @@ void lcadfs(int x, int f) {
 
 void lcabuild(int n) {
     for (int i = 0; i <= n; i++) {
-        depth[i] = 0;
+        dep[i] = 0;
         for (int j = 0; j < 25; j++) {
             fa[i][j] = 0;
         }
@@ -35,16 +35,16 @@ void lcabuild(int n) {
 }
 
 int LCA(int x, int y) {
-    if (depth[x] < depth[y]) {
+    if (dep[x] < dep[y]) {
         swap(x, y);
     }
-    while (depth[x] > depth[y]) {
-        x = fa[x][lg2[depth[x] - depth[y]]];
+    while (dep[x] > dep[y]) {
+        x = fa[x][lg2[dep[x] - dep[y]]];
     }
     if (x == y) {
         return x;
     }
-    for (int i = lg2[depth[x]]; i >= 0; i--) {
+    for (int i = lg2[dep[x]]; i >= 0; i--) {
         if (fa[x][i] != fa[y][i]) {
             x = fa[x][i], y = fa[y][i];
         }
@@ -53,5 +53,5 @@ int LCA(int x, int y) {
 }
 
 int dist(int x, int y) {
-    return depth[x] + depth[y] - 2 * depth[LCA(x, y)];
+    return dep[x] + dep[y] - 2 * dep[LCA(x, y)];
 }

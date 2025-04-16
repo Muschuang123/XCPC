@@ -19,9 +19,10 @@ int main() {
         if (it == dp.end()) {
             dp.push_back(a[i]);
         } else {
-            *it = 
+            *it = a[i];
         }
     }
+    cout << dp.size() - 1;
 
     return 0;
 }
