@@ -16,8 +16,9 @@ struct Trie {
         int u = 0;
         for (int i = 0; i < s.size(); i++) {
             int v = mp(s[i]);
-            if (!ch[u][v])
+            if (!ch[u][v]) {
                 ch[u][v] = ++idx;
+            }
             u = ch[u][v];
         }
         cnt[u]++;
@@ -28,8 +29,9 @@ struct Trie {
         int u = 0;
         for (int i = 0; i < s.size(); i++) {
             int v = mp(s[i]);
-            if (!ch[u][v])
+            if (!ch[u][v]) {
                 return 0;
+            }
             u = ch[u][v];
         }
         return cnt[u];
@@ -38,8 +40,9 @@ struct Trie {
     void clear() {
         for (int i = 0; i <= idx; i++) {
             cnt[i] = 0;
-            for (int j = 0; j < Tsz; j++)
+            for (int j = 0; j < Tsz; j++) {
                 ch[i][j] = 0;
+            }
         }
         idx = 0;
     }
