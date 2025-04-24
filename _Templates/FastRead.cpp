@@ -2,7 +2,7 @@
 // 使用 getchar() 的快读是无意义的，
 // 只有使用 fread() 的才能提速
 
-namespace QuickRead { // 快读
+namespace FastRead { // 快读
     char buf[1 << 21], *p1 = buf, *p2 = buf;
     inline int getc() {
         return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 1 << 21, stdin), p1 == p2) ? EOF : *p1++;
@@ -27,6 +27,6 @@ namespace QuickRead { // 快读
         if (x > 9) write(x / 10);
         putchar(x % 10 + '0');
     }
-} // namespace QuickRead
+} // namespace FastRead
 
-using namespace QuickRead;
+using namespace FastRead;
