@@ -6,23 +6,30 @@ struct SegTree {
     int a[maxn];
 
     inline void pushup(int p) {
-        t[p].v = t[p << 1].v + t[p << 1 | 1].v;
+        auto &me = t[p];
+        auto &lc = t[p << 1];
+        auto &rc = t[p << 1 | 1];
+        me.v = lc.v + rc.v;
     }
 
     inline void pushdown(int p) {
-        if (t[p].laz) {
-            t[p << 1].v += t[p].laz * (t[p << 1].r - t[p << 1].l + 1);
-            t[p << 1 | 1].v += t[p].laz * (t[p << 1 | 1].r - t[p << 1 | 1].l + 1);
-            t[p << 1].laz += t[p].laz;
-            t[p << 1 | 1].laz += t[p].laz;
-            t[p].laz = 0;
+        auto &me = t[p];
+        auto &lc = t[p << 1];
+        auto &rc = t[p << 1 | 1];
+        if (me.laz) {
+            lc.v += me.laz * (lc.r - lc.l + 1);
+            rc.v += me.laz * (rc.r - rc.l + 1);
+            lc.laz += me.laz;
+            rc.laz += me.laz;
+            me.laz = 0;
         }
     }
 
     void build(int p, int l, int r) {
-        t[p].l = l, t[p].r = r;
+        auto &me = t[p];
+        me.l = l, me.r = r;
         if (l == r) {
-            t[p].v = a[l];
+            me.v = a[l];
             return;
         }
         int mid = l + r >> 1;
@@ -32,9 +39,10 @@ struct SegTree {
     }
 
     void add(int p, int l, int r, int d) {
-        if (l <= t[p].l && t[p].r <= r) {
-            t[p].v += d * (t[p].r - t[p].l + 1);
-            t[p].laz += d;
+        auto &me = t[p];
+        if (l <= me.l && me.r <= r) {
+            me.v += d * (me.r - me.l + 1);
+            me.laz += d;
             return;
         }
         pushdown(p);
@@ -47,11 +55,12 @@ struct SegTree {
     }
 
     i64 query(int p, int l, int r) {
-        if (l <= t[p].l && t[p].r <= r) {
-            return t[p].v;
+        auto &me = t[p];
+        if (l <= me.l && me.r <= r) {
+            return me.v;
         }
         pushdown(p);
-        int mid = t[p].l + t[p].r >> 1;
+        int mid = me.l + me.r >> 1;
         i64 ans = 0;
         if (l <= mid)
             ans += query(p << 1, l, r);
