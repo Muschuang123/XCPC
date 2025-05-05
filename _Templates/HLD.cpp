@@ -61,6 +61,15 @@ int LCA(int x, int y) {
     return dep[x] < dep[y] ? x : y;
 }
 
+int jump(int x, int k) {
+    if (dep[x] < k)
+        return -1;
+    int d = dep[x] - k;
+    while (dep[top[x]] > d)
+        x = fa[top[x]];
+    return rnk[dfn[x] - (dep[x] - d)];
+}
+
 // SegTree T;
 
 void addseg(int x, int y, int z) {

@@ -4,19 +4,17 @@
 using i64 = long long;
 using namespace std;
 
-int main()
-{
+int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
 
     int n, k;
     cin >> n >> k;
     vector<int> a(n + 1);
     for (int i = 1; i <= n; i++) cin >> a[i];
+    
     deque<int> dq;
-
     // 求最大值，单调递减的队列。
-    for (int i = 1; i <= n; i++)
-    {
+    for (int i = 1; i <= n; i++) {
         while (dq.size() && a[dq.back()] >= a[i])
             dq.pop_back();
         dq.push_back(i);
@@ -30,8 +28,7 @@ int main()
     dq.clear();
 
     // 求最小值，单调递增的队列。
-    for (int i = 1; i <= n; i++)
-    {
+    for (int i = 1; i <= n; i++) {
         while (dq.size() && a[dq.back()] <= a[i])
             dq.pop_back();
         dq.push_back(i);

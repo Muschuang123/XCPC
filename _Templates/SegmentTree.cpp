@@ -57,11 +57,15 @@ struct SegTree {
     i64 query(int p, int l, int r) {
         auto &me = t[p];
         if (l <= me.l && me.r <= r) {
-            return me.v;
+            return me.v; // 别忘了改这里
         }
         pushdown(p);
         int mid = me.l + me.r >> 1;
         i64 ans = 0;
+        // if (r <= mid) { // left
+        // } else if (l <= mid) { // left + right
+        // } else { // right
+        // }
         if (l <= mid)
             ans += query(p << 1, l, r);
         if (r > mid)
