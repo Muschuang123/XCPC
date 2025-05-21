@@ -1,5 +1,6 @@
 const ld eps = 1e-8L;
 
+// vector<vector<ld>> a(n + 1, vector<ld(n + 2));
 // gauss[0] < 0 : no solution
 // gauss[0] > 0 : infinite solutions
 vector<ld> gauss_jordan(vector<vector<ld>> a, int n) {
@@ -17,6 +18,7 @@ vector<ld> gauss_jordan(vector<vector<ld>> a, int n) {
         if (fz != cur) {
             swap(a[fz], a[cur]);
         }
+        // 如果没有 非 0 主元，那么保持 cur (当前处理的行)，处理下一列
         if (fabsl(a[cur][i]) < eps) {
             continue;
         }
