@@ -6,9 +6,8 @@ vector<ld> gauss(vector<vector<ld>> a, int n) {
     for (int i = 1; i <= n; i++) {
         int fz = 0;
         for (int k = i; k <= n; k++) {
-            if (fabsl(a[k][i]) > eps) {
+            if (fabsl(a[k][i]) > fabsl(a[fz][i])) {
                 fz = k;
-                break;
             }
         }
         if (fz != i) {
