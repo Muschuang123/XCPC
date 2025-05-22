@@ -1,8 +1,7 @@
 const ld eps = 1e-8L;
 
-// gauss(a, n).empty() : no solution
+// gauss(a, n).empty() : no solution or infinite solutions
 vector<ld> gauss(vector<vector<ld>> a, int n) {
-    vector<ld> ans(n + 1);
     for (int i = 1; i <= n; i++) {
         int fz = 0;
         for (int k = i; k <= n; k++) {
@@ -30,6 +29,7 @@ vector<ld> gauss(vector<vector<ld>> a, int n) {
             a[i][n + 1] -= a[i][j] * a[j][n + 1];
         }
     }
+    vector<ld> ans(n + 1);
     for (int i = 1; i <= n; i++) {
         ans[i] = a[i][n + 1];
     }
