@@ -49,7 +49,7 @@ int main() {
         q[i].i = i;
     }
 
-    sort(q.begin(), q.end());
+    sort(q.begin() + 1, q.end());
 
     vector<i64> ans(m + 1);
     for (int i = 1, l = 1, r = 0; i <= m; i++) {

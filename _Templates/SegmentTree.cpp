@@ -28,6 +28,7 @@ struct SegTree {
     void build(int p, int l, int r) {
         auto &me = t[p];
         me.l = l, me.r = r;
+        me.laz = 0; // laz == ilegal value
         if (l == r) {
             me.v = a[l];
             return;
