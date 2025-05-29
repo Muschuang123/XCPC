@@ -1,3 +1,4 @@
+// 1-index string
 i64 manacher(string a, int n) {
     a[0] = '&';
     a.push_back('|');
