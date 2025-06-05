@@ -59,7 +59,7 @@ int main() {
         cout << "No Solution\n";
         return 0;
     }
-    
+
     for (int i = 1; i <= n; i++) {
         cout << ans[i] << '\n';
     }

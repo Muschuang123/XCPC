@@ -23,7 +23,7 @@ struct fenwick {
         return ans;
     }
 
-    i64 query(int l, int r) {
-        return query(r) - query(l);
+    i64 ask(int l, int r) {
+        return query(r) - query(l - 1);
     }
 };

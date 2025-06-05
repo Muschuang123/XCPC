@@ -15,7 +15,7 @@ struct edge {
 int head[maxn];
 
 int eknt = 0;
-void adde(int u, int v/*, int w*/) {
+void adde(int u, int v /*, int w*/) {
     eknt++;
     g[eknt].to = v;
     g[eknt].ne = head[u];

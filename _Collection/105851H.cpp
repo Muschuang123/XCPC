@@ -1,4 +1,5 @@
 // https://codeforces.com/gym/105851/problem/H
+// A * B = C 给定 A、C 求 B
 // 高斯消元 行数列数不同的矩阵
 #include <bits/stdc++.h>
 using i64 = long long;
