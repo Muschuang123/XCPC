@@ -14,15 +14,15 @@ void tj(int x) {
     dfn[x] = low[x] = ++dfnknt;
     int child = 0;
     for (auto &v : g[x]) {
-        if (dfn[v]) { // 已访问，是 dfn 更小的节点，直接从这个点转移 dfn
+        if (dfn[v]) {  // 已访问，是 dfn 更小的节点，直接从这个点转移 dfn
             low[x] = min(low[x], dfn[v]);
-        } else { // 未访问，属于 x 的子树，在 dfs 后 更新 low[x]
+        } else {  // 未访问，属于 x 的子树，在 dfs 后 更新 low[x]
             tj(v);
             low[x] = min(low[x], low[v]);
-            if (low[v] >= dfn[x]) { // 这表明不通过 x，v 根本回不去
+            if (low[v] >= dfn[x]) {  // 这表明不通过 x，v 根本回不去
                 child++;
                 // 不是根节点 or 有超过两个孩子
-                if (x != root || child > 1) { 
+                if (x != root || child > 1) {
                     cut[x] = 1;
                 }
             }

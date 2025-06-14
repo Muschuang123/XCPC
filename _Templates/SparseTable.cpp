@@ -23,6 +23,7 @@ struct SparseTable {
 
 // ---------------------------------------
 // dynamic size version:
+// ---------------------------------------
 
 // 1-index
 struct SparseTable {
