@@ -6,49 +6,33 @@ int main() {
 
     string s1, s2;
     cin >> s1 >> s2;
-
-    // 先快速求s2的next数组
-    vector<int> next(s2.size() + 1);
-    next[0] = -1;
-    if (s2.size() > 1)
-        next[1] = 0;
-
-    int i = 2, cn = 0;
-    while (i <= s2.size()) {
-        if (s2[i - 1] == s2[cn]) {
-            next[i++] = ++cn;
-        }
-        // cn可以往前跳
-        else if (cn > 0) {
-            cn = next[cn];
-        } else {
-            next[i++] = 0;
-        }
-    }
-
+    int n = s1.size(), m = s2.size();
+    s1 = " " + s1;
+    s2 = " " + s2;
+    // s2.push_back('A');
     vector<int> ok;
-    int x = 0, y = 0;
-    while (x < s1.size()) {
-        if (s1[x] == s2[y]) {
-            x++;
-            y++;
-        } else if (y == 0) {
-            x++;
-        } else {
-            y = next[y];
-        }
 
-        if (y == s2.size()) {
-            x -= y - 1;
-            ok.push_back(x);
-            y = 0;
+    vector<int> ne(m + 1);
+    for (int i = 2, j = 0; i <= m; i++) {
+        while (j > 0 && s2[j + 1] != s2[i]) j = ne[j];
+        if (s2[j + 1] == s2[i]) j++;
+        ne[i] = j;
+    }
+    for (int i = 1, j = 0; i <= n; i++) {
+        while (j > 0 && s2[j + 1] != s1[i]) j = ne[j];
+        if (s2[j + 1] == s1[i]) j++;
+        if (j == m) {
+            ok.push_back(i - j + 1);
+            j = ne[j];
         }
     }
 
-    for (int tt = 0; tt < ok.size(); tt++)
-        cout << ok[tt] << '\n';
-    for (int tt = 1; tt < next.size(); tt++)
-        cout << next[tt] << ' ';
+    for (auto &e : ok) {
+        cout << e << '\n';
+    }
+    for (int i = 1; i <= m; i++) {
+        cout << ne[i] << ' ';
+    }
 
     return 0;
 }

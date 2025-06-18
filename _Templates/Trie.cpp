@@ -24,7 +24,6 @@ struct Trie {
         cnt[u]++;
     }
 
-    // return the number of strings in Trie.
     int query(const string &s) {
         int u = 0;
         for (int i = 0; i < s.size(); i++) {
@@ -46,4 +45,4 @@ struct Trie {
         }
         idx = 0;
     }
-};
+} D;
