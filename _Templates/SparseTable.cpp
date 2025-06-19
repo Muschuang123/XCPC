@@ -1,8 +1,7 @@
 struct SparseTable {
     int mx[maxn][25], lg[maxn];
-    int n, a[maxn];
 
-    void build() {
+    void build(int n, vector<int> &a) {
         lg[0] = -1;
         for (int i = 1; i <= n; i++) {
             mx[i][0] = a[i];

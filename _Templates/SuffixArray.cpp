@@ -1,10 +1,10 @@
 // od[] 作为辅助数组，作为 oldsa[] / oldrk[]
 // ct[] 计数，用于排序
-int od[2 * maxn], ct[maxn];
 int rk[2 * maxn], sa[maxn], ht[maxn];
 struct SuffixArray {
     // n 字符串长度，m 字符集大小
     int n, m;
+    int od[2 * maxn], ct[maxn];
 
     void sor(int k) {
         for (int i = 0; i <= m; i++) ct[i] = 0;
