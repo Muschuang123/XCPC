@@ -1,4 +1,4 @@
-struct Median {
+struct med {
     multiset<int> s1, s2;
 
     void balance() {
