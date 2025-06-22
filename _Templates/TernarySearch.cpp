@@ -5,9 +5,10 @@ while (l + 1 < r) {
     int ml = l + d;
     int mr = r - d;
     // 修改成 >= 就是最小值
-    if (check(ml) <= check(mr))
+    if (check(ml) <= check(mr)) {
         l = ml;
-    else
+    } else {
         r = mr;
+    }
 }
 cout << check(l) << '\n';
