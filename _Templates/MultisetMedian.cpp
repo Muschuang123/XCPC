@@ -15,9 +15,9 @@ struct Median {
     }
 
     void insert(int x) {
-        if (s2.empty())
+        if (s2.empty()) {
             s2.insert(x);
-        else {
+        } else {
             int num = *s2.begin();
             if (x >= num)
                 s2.insert(x);
@@ -28,10 +28,11 @@ struct Median {
     }
 
     void erase(int x) {
-        if (s1.count(x))
+        if (s1.count(x)) {
             s1.erase(s1.find(x));
-        else
+        } else {
             s2.erase(s2.find(x));
+        }
         balance();
     }
 
