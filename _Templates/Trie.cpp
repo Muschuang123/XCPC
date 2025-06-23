@@ -1,6 +1,6 @@
 // 'a' ~ 'z'
 struct Trie {
-    static const int Tsz = 26;
+    const int Tsz = 26;
     int ch[maxn][Tsz], cnt[maxn];
     int idx = 0;
 
