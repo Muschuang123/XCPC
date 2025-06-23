@@ -19,10 +19,11 @@ struct med {
             s2.insert(x);
         } else {
             int num = *s2.begin();
-            if (x >= num)
+            if (x >= num) {
                 s2.insert(x);
-            else
+            } else {
                 s1.insert(x);
+            }
         }
         balance();
     }
