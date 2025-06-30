@@ -2,7 +2,7 @@ struct fenwick {
     int n;
     vector<i64> t;
 
-    fenwick(int _n = 0) {
+    fenwick(int _n) {
         n = _n - 1;
         t.resize(n + 1);
     }
