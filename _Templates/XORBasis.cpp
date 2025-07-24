@@ -1,3 +1,4 @@
+// 给定 a ，计算 a 的线性基
 // return : 0-index | params : 1-index
 vector<i64> xorbasis(vector<i64> a) {
     int n = (int)a.size() - 1;
@@ -10,7 +11,7 @@ vector<i64> xorbasis(vector<i64> a) {
                 break;
             }
         }
-         // 如果 cur 行第 i 位还是 0，跳过
+        // 如果 cur 行第 i 位还是 0，跳过
         if (a[cur] >> i & 1 ^ 1) {
             continue;
         }
@@ -32,3 +33,43 @@ vector<i64> xorbasis(vector<i64> a) {
     }
     return ans;
 }
+
+// 可插入线性基
+struct XORBasis {
+    i64 bas[maxn];
+    void insert(i64 x) {
+        for (int i = maxn - 1; i >= 0; i--) {
+            if (x >> i & 1) {
+                if (!bas[i]) {
+                    bas[i] = x;
+                    break;
+                }
+                x ^= bas[i];
+            }
+        }
+    }
+    i64 queryMax(i64 x = 0) { // 可提供初始数
+        for (int i = maxn - 1; i >= 0; i--) {
+            if (x >> i & 1 ^ 1) {
+                x ^= bas[i];
+            }
+        }
+        return x;
+    }
+    bool check(i64 x) { // 判断 x 是否能被异或得到
+        for (int i = maxn - 1; i >= 0; i--) {
+            if (x >> i & 1) {
+                if (!bas[i]) {
+                    return false;
+                }
+                x ^= bas[i];
+            }
+        }
+        return true;
+    }
+    void clear() {
+        for (int i = 0; i < maxn; i++) {
+            bas[i] = 0;
+        }
+    }
+};

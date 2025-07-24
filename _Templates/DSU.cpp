@@ -6,9 +6,9 @@ struct dsu {
     dsu(int _n = 0) {
         n = _n - 1;
         cnt = n;
-        fa.resize(n + 1);
+        fa.assign(n + 1, 0);
         for (int i = 1; i <= n; i++) fa[i] = i;
-        sz.resize(n + 1, 1);
+        sz.assign(n + 1, 1);
     }
 
     int fin(int x) {

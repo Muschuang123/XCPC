@@ -1,4 +1,4 @@
-const int maxn = 1e5 + 5;
+const int maxn = 
 vector<int> g[maxn];
 int fa[maxn];   // 父亲
 int dep[maxn];  // 深度
@@ -10,32 +10,32 @@ int rnk[maxn];  // DFS序逆
 int dfnknt = 0;
 int root = 1;
 
-void dfs1(int x, int father) {
-    sz[x] = 1;
-    dep[x] = dep[father] + 1;
-    fa[x] = father;
-    for (auto &v : g[x]) {
-        if (v == father) {
+void dfs1(int u, int f) {
+    sz[u] = 1;
+    dep[u] = dep[f] + 1;
+    fa[u] = f;
+    for (auto &v : g[u]) {
+        if (v == f) {
             continue;
         }
-        dfs1(v, x);
-        sz[x] += sz[v];
-        if (!son[x] || sz[son[x]] < sz[v]) {
-            son[x] = v;
+        dfs1(v, u);
+        sz[u] += sz[v];
+        if (!son[u] || sz[son[u]] < sz[v]) {
+            son[u] = v;
         }
     }
 }
 
-void dfs2(int x, int t) {
-    top[x] = t;
-    dfn[x] = ++dfnknt;
-    rnk[dfnknt] = x;
-    if (!son[x]) {
+void dfs2(int u, int t) {
+    top[u] = t;
+    dfn[u] = ++dfnknt;
+    rnk[dfnknt] = u;
+    if (!son[u]) {
         return;
     }
-    dfs2(son[x], t);
-    for (auto &v : g[x]) {
-        if (v == son[x] || v == fa[x]) {
+    dfs2(son[u], t);
+    for (auto &v : g[u]) {
+        if (v == son[u] || v == fa[u]) {
             continue;
         }
         dfs2(v, v);
