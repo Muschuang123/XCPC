@@ -1,48 +1,34 @@
-// 'a' ~ 'z'
+// 默认 'a' ~ 'z'
+// maxn = ∑|s| ，s 为模式串
+const int Tsz = 26;
 struct Trie {
-    const int Tsz = 26;
-    int ch[maxn][Tsz], cnt[maxn];
-    int idx = 0;
-
-    Trie() {
-        memset(ch, 0, sizeof(ch)), memset(cnt, 0, sizeof(cnt));
-    }
-
-    inline int mp(char c) {
-        return c - 'a';
-    }
-
+    int ch[maxn][Tsz], cnt[maxn], tot;
+    int mp(char c) { return c - 'a'; }
     void insert(const string &s) {
         int u = 0;
         for (int i = 0; i < s.size(); i++) {
-            int v = mp(s[i]);
-            if (!ch[u][v]) {
-                ch[u][v] = ++idx;
-            }
-            u = ch[u][v];
+            int &v = ch[u][mp(s[i])];
+            if (!v) v = ++tot;
+            u = v;
         }
         cnt[u]++;
     }
-
     int query(const string &s) {
         int u = 0;
         for (int i = 0; i < s.size(); i++) {
-            int v = mp(s[i]);
-            if (!ch[u][v]) {
-                return 0;
-            }
-            u = ch[u][v];
+            int v = ch[u][mp(s[i])];
+            if (!v) return 0;
+            u = v;
         }
         return cnt[u];
     }
-
     void clear() {
-        for (int i = 0; i <= idx; i++) {
+        for (int i = 0; i <= tot; i++) {
             cnt[i] = 0;
             for (int j = 0; j < Tsz; j++) {
                 ch[i][j] = 0;
             }
         }
-        idx = 0;
+        tot = 0;
     }
 } D;
