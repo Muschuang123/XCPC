@@ -104,7 +104,7 @@ T dot(Pt p0, Pt p1, Pt p2) {
 // 向量旋转任意角度
 // using T = ld;
 Pt rotate(Pt p, ld rad) {
-    return {p.x * cosl(rad) - p.y * sinl(rad), p.x * sin(rad) + p.y * cosl(rad)};
+    return {p.x * cosl(rad) - p.y * sinl(rad), p.x * sinl(rad) + p.y * cosl(rad)};
 }
 
 // Lt(a, b) 逆时针旋转 90°

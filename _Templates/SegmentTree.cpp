@@ -5,14 +5,14 @@ struct SegTree {
 
     int a[maxn];
 
-    inline void pushup(int p) {
+    void pushup(int p) {
         auto &me = t[p];
         auto &lc = t[p << 1];
         auto &rc = t[p << 1 | 1];
         me.v = lc.v + rc.v;
     }
 
-    inline void pushdown(int p) {
+    void pushdown(int p) {
         auto &me = t[p];
         auto &lc = t[p << 1];
         auto &rc = t[p << 1 | 1];
