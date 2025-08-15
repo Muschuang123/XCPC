@@ -7,9 +7,9 @@ using namespace std;
 // 然后删去强制浮点数的函数，改用手写 pair<ld, ld> 替代。
 using T = ld; // 全局数据类型
 
-constexpr T eps = 1e-8;
-constexpr T INF = numeric_limits<T>::max();
-constexpr T PI = acosl(-1);
+const T eps = 1e-8;
+const T INF = numeric_limits<T>::max();
+const T PI = acosl(-1);
 #define setp(x) cout << fixed << setprecision(x)
 
 // 点与向量
@@ -211,6 +211,47 @@ struct Convex : Polygon {
             }
         }
         return ans;
+    }
+    // 最小矩形覆盖 O(n)，返回面积和矩形端点（必须用浮点数）
+    // 矩形端点按逆时针给出。
+    pair<T, vector<Pt>> minRectangleCover() const {
+        const auto &p = this->p;
+        if (p.size() == 1) return {0, {}};
+        if (p.size() == 2) return {0, {}};
+        const auto dot = [&](const size_t u, const size_t v, const size_t w) { return (p[v] - p[u]) * (p[w] - p[u]); };
+        const auto cross = [&](const size_t u, const size_t v, const size_t w) { return (p[v] - p[u]) ^ (p[w] - p[u]); };
+        size_t u = 1, d = 1;
+        T mu = INF, md = -INF;
+        for (size_t i = 0; i < p.size(); i++) {
+            if (mu >= dot(0, 1, i)) {
+                mu = dot(0, 1, i);
+                u = i;
+            }
+            if (md <= dot(0, 1, i)) {
+                md = dot(0, 1, i);
+                d = i;
+            }
+        }
+        T ans = INF;
+        vector<Pt> rec(4);
+        for (size_t l = 0, r = 1; l < p.size(); l++) {
+            const auto nxtl = this->nxt(l);
+            while (cross(l, nxtl, r) <= cross(l, nxtl, this->nxt(r))) r = this->nxt(r);
+            while (dot(l, nxtl, u) >= dot(l, nxtl, this->nxt(u))) u = this->nxt(u);
+            while (dot(l, nxtl, d) <= dot(l, nxtl, this->nxt(d))) d = this->nxt(d);
+            Lt mid = St{p[l], p[nxtl]}.midperp();
+            Lt L = {p[l], p[nxtl] - p[l]};
+            Lt R = {p[r], p[nxtl] - p[l]};
+            T res = L.dis(p[r]) * (mid.dis(p[u]) + mid.dis(p[d]));
+            if (ans > res) {
+                ans = res;
+                rec[0] = L.pedal(p[u]);
+                rec[1] = L.pedal(p[d]);
+                rec[2] = R.pedal(p[d]);
+                rec[3] = R.pedal(p[u]);
+            }
+        }
+        return {ans, rec};
     }
     // 判断点是否在凸多边形内
     // 复杂度 O(logn)
