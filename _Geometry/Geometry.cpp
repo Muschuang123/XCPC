@@ -214,7 +214,7 @@ struct Convex : Polygon {
     }
     // 最小矩形覆盖 O(n)，返回面积和矩形端点（必须用浮点数）
     // 矩形端点按逆时针给出。
-    pair<T, vector<Pt>> minRectangleCover() const {
+    pair<T, vector<Pt>> min_rectangle_cover() const {
         const auto &p = this->p;
         if (p.size() == 1) return {0, {}};
         if (p.size() == 2) return {0, {}};
@@ -480,7 +480,7 @@ Convex convexhull(vector<Pt> p) {
 }
 
 // 最小圆覆盖 | 期望 O(n) | 必须用浮点数
-Circle minCircleCover(vector<Pt> a) {
+Circle min_circle_cover(vector<Pt> a) {
     mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
     // 两点确定一个圆
     auto get2 = [](const Pt &a, const Pt &b) -> Circle {
@@ -516,7 +516,7 @@ Circle minCircleCover(vector<Pt> a) {
 // 排序增量法，复杂度 O(nlogn)
 // 输入与返回值都是用直线表示的半平面集合
 vector<Lt> halfinter(vector<Lt> l, const T lim = 1e9) {
-    // 必须用浮点数
+    // 必须用浮点数，return <= 则会去掉冗余线
     const auto check = [](const Lt &a, const Lt &b, const Lt &c) { return a.toleft(b.inter(c)) < 0; };
     // 无精度误差的方法，但注意取值范围会扩大到三次方
     // const auto check = [](const Lt &a, const Lt &b, const Lt &c) {
@@ -546,7 +546,10 @@ vector<Lt> halfinter(vector<Lt> l, const T lim = 1e9) {
 // 返回最近点对距离平方
 T closest_pair(vector<Pt> pts) {
     sort(pts.begin(), pts.end());
-    const auto cmpy = [](const Pt &a, const Pt &b) {if (abs(a.y-b.y)<=eps) return a.x<b.x-eps; return a.y<b.y-eps; };
+    const auto cmpy = [](const Pt &a, const Pt &b) {
+        if (abs(a.y - b.y) <= eps) return a.x < b.x - eps;
+        return a.y < b.y - eps;
+    };
     multiset<Pt, decltype(cmpy)> s{cmpy};
     T ans = INF;
     for (size_t i = 0, l = 0; i < pts.size(); i++) {
