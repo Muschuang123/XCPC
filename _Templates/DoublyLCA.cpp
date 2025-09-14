@@ -1,4 +1,4 @@
-// 倍增 LCA 先 init() 一下，每次建好图 使用 lcabuild()
+// 倍增 LCA | 在 main() 里面先 init() 一下，多测每次建好图 使用 lcabuild()
 const int maxn = 2e5 + 5;
 int root = 1;
 vector<int> g[maxn];

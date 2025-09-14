@@ -1,6 +1,5 @@
-struct med {
+struct median {
     multiset<int> s1, s2;
-
     void balance() {
         int sz1 = s1.size(), sz2 = s2.size();
         if (sz2 > sz1 + 1) {
@@ -13,7 +12,6 @@ struct med {
             s1.erase(prev(s1.end()));
         }
     }
-
     void insert(int x) {
         if (s2.empty()) {
             s2.insert(x);
@@ -27,7 +25,6 @@ struct med {
         }
         balance();
     }
-
     void erase(int x) {
         if (s1.count(x)) {
             s1.erase(s1.find(x));
@@ -36,7 +33,6 @@ struct med {
         }
         balance();
     }
-
     int query() {
         return *s2.begin();
     }

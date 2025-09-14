@@ -88,19 +88,21 @@ void calc(int u) {
 }
 
 // main():
-// cin >> n >> Q;
-// for (int i = 1; i < n; i++) {
-//     int u, v, w;
-//     cin >> u >> v >> w;
-//     g[u].emplace_back(v, w);
-//     g[v].emplace_back(u, w);
-// }
-// for (int i = 1; i <= Q; i++) {
-//     cin >> ask[i];
-// }
-// mis = sum = n;
-// getroot(1, 0);
-// calc(root);
-// for (int i = 1; i <= Q; i++) {
-//     cout << (ans[i] ? "YES" : "NO") << '\n';
-// }
+{
+    cin >> n >> Q;
+    for (int i = 1; i < n; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        g[u].emplace_back(v, w);
+        g[v].emplace_back(u, w);
+    }
+    for (int i = 1; i <= Q; i++) {
+        cin >> ask[i];
+    }
+    mis = sum = n;
+    getroot(1, 0);
+    calc(root);
+    for (int i = 1; i <= Q; i++) {
+        cout << (ans[i] ? "YES" : "NO") << '\n';
+    }
+}

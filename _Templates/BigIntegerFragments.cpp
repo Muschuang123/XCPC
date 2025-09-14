@@ -3,8 +3,7 @@ const int base_digits = 9; // 分解为九个数位一个数字
 struct bigint {
     vector<int> a;
     int sign;
-
-    bigint() : sign(1) { }
+    bigint() : sign(1) {}
     bigint operator-() const {
         bigint res = *this;
         res.sign = -sign;
@@ -15,6 +14,26 @@ struct bigint {
     }
     bigint(const string &s) {
         read(s);
+    }
+    bigint abs() const {
+        bigint res = *this;
+        res.sign *= res.sign;
+        return res;
+    }
+    void check(int v) { // 检查输入的是否为负数
+        if (v < 0) {
+            sign = -sign;
+            v = -v;
+        }
+    }
+    void trim() { // 去除前导零
+        while (!a.empty() && !a.back())
+            a.pop_back();
+        if (a.empty())
+            sign = 1;
+    }
+    bool isZero() const { // 判断是否等于零
+        return a.empty() || (a.size() == 1 && !a[0]);
     }
     void operator=(const bigint &v) {
         sign = v.sign;
@@ -29,7 +48,36 @@ struct bigint {
             a.push_back(v % base);
         }
     }
-
+    void operator+=(const bigint &v) {
+        *this = *this + v;
+    }
+    void operator-=(const bigint &v) {
+        *this = *this - v;
+    }
+    void operator*=(int v) {
+        check(v);
+        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i) {
+            if (i == (int)a.size()) {
+                a.push_back(0);
+            }
+            long long cur = a[i] * (long long)v + carry;
+            carry = (int)(cur / base);
+            a[i] = (int)(cur % base);
+        }
+        trim();
+    }
+    void operator/=(int v) {
+        check(v);
+        for (int i = (int)a.size() - 1, rem = 0; i >= 0; --i) {
+            long long cur = a[i] + rem * (long long)base;
+            a[i] = (int)(cur / v);
+            rem = (int)(cur % v);
+        }
+        trim();
+    }
+    void operator%=(const int &v) {
+        *this = *this % v;
+    }
     // 基础加减乘除
     bigint operator+(const bigint &v) const {
         if (sign == v.sign) {
@@ -86,38 +134,6 @@ struct bigint {
         }
         return m * sign;
     }
-
-    void operator+=(const bigint &v) {
-        *this = *this + v;
-    }
-    void operator-=(const bigint &v) {
-        *this = *this - v;
-    }
-    void operator*=(int v) {
-        check(v);
-        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i) {
-            if (i == (int)a.size()) {
-                a.push_back(0);
-            }
-            long long cur = a[i] * (long long)v + carry;
-            carry = (int)(cur / base);
-            a[i] = (int)(cur % base);
-        }
-        trim();
-    }
-    void operator/=(int v) {
-        check(v);
-        for (int i = (int)a.size() - 1, rem = 0; i >= 0; --i) {
-            long long cur = a[i] + rem * (long long)base;
-            a[i] = (int)(cur / v);
-            rem = (int)(cur % v);
-        }
-        trim();
-    }
-    void operator%=(const int &v) {
-        *this = *this % v;
-    }
-
     bool operator<(const bigint &v) const {
         if (sign != v.sign)
             return sign < v.sign;
@@ -142,27 +158,6 @@ struct bigint {
     }
     bool operator!=(const bigint &v) const {
         return *this < v || v < *this;
-    }
-
-    bigint abs() const {
-        bigint res = *this;
-        res.sign *= res.sign;
-        return res;
-    }
-    void check(int v) { // 检查输入的是否为负数
-        if (v < 0) {
-            sign = -sign;
-            v = -v;
-        }
-    }
-    void trim() { // 去除前导零
-        while (!a.empty() && !a.back())
-            a.pop_back();
-        if (a.empty())
-            sign = 1;
-    }
-    bool isZero() const { // 判断是否等于零
-        return a.empty() || (a.size() == 1 && !a[0]);
     }
     friend bigint gcd(const bigint &a, const bigint &b) {
         return b.isZero() ? a : gcd(b, a % b);
@@ -201,7 +196,6 @@ struct bigint {
             stream << setw(base_digits) << setfill('0') << v.a[i];
         return stream;
     }
-
     /* 大整数乘除大整数部分 */
     typedef vector<long long> vll;
     bigint operator*(const bigint &v) const { // 大整数乘大整数
@@ -250,7 +244,6 @@ struct bigint {
         r.trim();
         return make_pair(q, r / norm);
     }
-
     static vector<int> convert_base(const vector<int> &a, int old_digits, int new_digits) {
         vector<long long> p(max(old_digits, new_digits) + 1);
         p[0] = 1;
@@ -313,7 +306,6 @@ struct bigint {
             res[i + n] += a2b2[i];
         return res;
     }
-
     void operator*=(const bigint &v) {
         *this = *this * v;
     }

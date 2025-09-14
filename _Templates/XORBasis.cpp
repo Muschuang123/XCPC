@@ -1,5 +1,6 @@
 // 给定 a ，计算 a 的线性基
-// return : 0-index | params : 1-index
+// return : 0-index | param : 1-index
+// i64 可以改成 bitset，>> i & 1 改为 [i]
 vector<i64> xorbasis(vector<i64> a) {
     int n = (int)a.size() - 1;
     int cur = 1;

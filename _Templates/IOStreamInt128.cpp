@@ -20,7 +20,6 @@ istream &operator>>(istream &it, __int128_t &j) {
     j = f ? -ans : ans;
     return it;
 }
-
 ostream &operator<<(ostream &os, const __int128_t &j) {
     string ans;
     function<void(__int128_t)> write = [&](__int128_t x) {

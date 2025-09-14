@@ -7,9 +7,7 @@ void getroot(int u, int f) {
     sz[u] = 1;
     int s = 0;
     for (int v : g[u]) {
-        if (f == v) {
-            continue;
-        }
+        if (v == f) continue;
         getroot(v, u);
         sz[u] += sz[v];
         s = max(s, sz[v]);

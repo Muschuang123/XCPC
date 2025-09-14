@@ -1,4 +1,4 @@
-struct di {
+struct dicrete {
     vector<i64> a;
     void add(i64 x) {
         a.push_back(x);
