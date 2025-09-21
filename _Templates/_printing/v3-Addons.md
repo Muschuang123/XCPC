@@ -1,3 +1,104 @@
+## 动态开点线段树
+```cpp
+#include <bits/stdc++.h>
+using ld = long double;
+using i64 = long long;
+using namespace std;
+
+const int maxn = 1e5 + 5;
+int mod = 1e9 + 7;
+int rt = 1;
+
+// 使用前先 init()
+struct DST {
+    int tot = 1;
+    struct Node {
+        int ls, rs, v, laz;
+    } t[maxn * 66]; // Q(查询次数) * 2logV(值域大小)
+    // 极端情况下单次修改可能创建 接近 2logV 个节点
+
+#define me t[p]
+#define lc t[t[p].ls]
+#define rc t[t[p].rs]
+
+    void init() {
+        for (int i = 0; i <= tot; i++) {
+            t[i] = {0, 0, 0, 0};
+        }
+        tot = 1;
+    }
+    void pushup(int p) {
+        me.v = (lc.v + rc.v) % mod; // pushup
+    }
+    void pushdown(int p, int L, int R) {
+        if (!me.laz) return;
+        int M = L + R >> 1;
+        if (!me.ls) me.ls = ++tot;
+        if (!me.rs) me.rs = ++tot;
+        lc.v = (lc.v + 1LL * me.laz * (M - L + 1)) % mod;
+        rc.v = (rc.v + 1LL * me.laz * (R - M)) % mod;
+        lc.laz = (lc.laz + me.laz) % mod;
+        rc.laz = (rc.laz + me.laz) % mod;
+        me.laz = 0;
+    }
+    // int rt = 1;
+    // add(rt, 1, n, l, r, d);
+    void add(int &p, int L, int R, int l, int r, int d) {
+        if (!p) p = ++tot; // 开点
+        if (r < L || R < l) return;
+        if (l <= L && R <= r) {
+            me.v = (1LL * me.v + 1LL * (R - L + 1) * d) % mod;
+            me.laz = (me.laz + d) % mod;
+            return;
+        }
+        pushdown(p, L, R);
+        int M = L + R >> 1;
+        add(me.ls, L, M, l, r, d);
+        add(me.rs, M + 1, R, l, r, d);
+        pushup(p);
+    }
+    int query(int p, int L, int R, int l, int r) {
+        if (!p) return 0;
+        if (l <= L && R <= r) return t[p].v;
+        pushdown(p, L, R);
+        int res = 0;
+        int M = L + R >> 1;
+        if (l <= M) res = (res + query(t[p].ls, L, M, l, r)) % mod;
+        if (r > M) res = (res + query(t[p].rs, M + 1, R, l, r)) % mod;
+        return res;
+    }
+
+#undef me
+#undef lc
+#undef rc
+
+} T;
+
+int main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+    T.init();
+    int m, n = 1000000000;
+    cin >> m >> mod;
+    while (m--) {
+        int op;
+        cin >> op;
+        if (op == 1) {
+            int x, y, z;
+            cin >> x >> y >> z;
+            T.add(rt, 1, n, x, y, z);
+        } else {
+            int x, y;
+            cin >> x >> y;
+            cout << T.query(rt, 1, n, x, y) << '\n';
+        }
+    }
+
+    return 0;
+}
+```
+## 二维全集
+```cpp
 #include <bits/stdc++.h>
 using ld = long double;
 using i64 = long long;
@@ -848,3 +949,479 @@ vector<T> area_union(const vector<Circle> &circs) {
     }
     return ans;
 }
+```
+
+## 动态凸包
+```cpp
+// https://codeforces.com/problemset/problem/70/D
+#include <bits/stdc++.h>
+using ld = long double;
+using i64 = long long;
+using namespace std;
+
+// 有浮点数但是大部分都是 i64 时，可以选择用 pair<ld, ld> 替换必需内容
+// 然后删去强制浮点数的函数，改用手写 pair<ld, ld> 替代。
+using T = i64; // 全局数据类型
+
+const T eps = 1e-12;
+const T INF = numeric_limits<T>::max();
+const T PI = acosl(-1);
+#define setp(x) cout << fixed << setprecision(x)
+
+// 点与向量
+struct Pt {
+    T x, y;
+    bool operator==(const Pt &a) const { return (abs(x - a.x) <= eps && abs(y - a.y) <= eps); }
+    bool operator!=(const Pt &a) const { return !(*this == a); }
+    bool operator<(const Pt &a) const {
+        if (abs(x - a.x) <= eps) return y < a.y - eps;
+        return x < a.x - eps;
+    }
+    bool operator>(const Pt &a) const { return !(*this < a || *this == a); }
+    Pt operator+(const Pt &a) const { return {x + a.x, y + a.y}; }
+    Pt operator-(const Pt &a) const { return {x - a.x, y - a.y}; }
+    Pt operator-() const { return {-x, -y}; }
+    Pt operator*(const T k) const { return {k * x, k * y}; }
+    Pt operator/(const T k) const { return {x / k, y / k}; }
+    T operator*(const Pt &a) const { return x * a.x + y * a.y; } // 点积
+    T operator^(const Pt &a) const { return x * a.y - y * a.x; } // 叉积，注意优先级
+    int toleft(const Pt &a) const {
+        const auto t = (*this) ^ a;
+        return (t > eps) - (t < -eps);
+    } // to-left 测试
+    T len2() const { return (*this) * (*this); }               // 向量长度的平方
+    T dis2(const Pt &a) const { return (a - (*this)).len2(); } // 两点距离的平方
+    // 0:原点 | 1:x轴正 | 2:第一象限
+    // 3:y轴正 | 4:第二象限 | 5:x轴负
+    // 6:第三象限 | 7:y轴负 | 8:第四象限
+    int quad() const {
+        if (abs(x) <= eps && abs(y) <= eps) return 0;
+        if (abs(y) <= eps) return x > eps ? 1 : 5;
+        if (abs(x) <= eps) return y > eps ? 3 : 7;
+        return y > eps ? (x > eps ? 2 : 4) : (x > eps ? 8 : 6);
+    }
+};
+
+// 极角排序
+struct Argcmp {
+    bool operator()(const Pt &a, const Pt &b) const {
+        const int qa = a.quad(), qb = b.quad();
+        if (qa != qb) return qa < qb;
+        const auto t = a ^ b;
+        // 不同长度的向量需要分开
+        if (abs(t) <= eps) return a * a < b * b - eps;
+        return t > eps;
+    }
+};
+
+// 注意整数时需要全体坐标在外面 * 3，才能保证准确
+// 注意要把 Argcmp 的 区分长度注释解除
+struct DynamicConvex {
+    Pt o;
+    set<Pt, Argcmp> ss; // 注意 ss 中的点 已经 - o
+    using iter = set<Pt, Argcmp>::iterator;
+    DynamicConvex(const Pt &a, const Pt &b, const Pt &c) {
+        o = (a + b + c) / 3;
+        ss.insert(a - o);
+        ss.insert(b - o);
+        ss.insert(c - o);
+    }
+    iter pre(iter it) const { return it == ss.begin() ? --ss.end() : (--it); }
+    iter nxt(iter it) const { return (++it) == ss.end() ? ss.begin() : it; }
+    // -1 点在多边形边上 | 0 点在多边形外 | 1 点在多边形内
+    int is_in(Pt x) const {
+        x = x - o;
+        auto it = ss.lower_bound(x);
+        if (it != ss.end() && (*it ^ x) == 0) return x * x <= *it * *it;
+        iter l = pre(it);
+        iter r = (it == ss.end()) ? ss.begin() : it;
+        T res = (*l - x ^ *r - x);
+        if (abs(res) <= eps) return -1;
+        return res > 0;
+    }
+    // 凸包中加入点
+    void insert(Pt x) {
+        if (is_in(x)) return;
+        x = x - o;
+        auto [it, _] = ss.insert(x);
+        while (ss.size() >= 4 && (*it - (*nxt(it)) ^ (*nxt(nxt(it))) - *nxt(it)) >= 0) ss.erase(nxt(it));
+        while (ss.size() >= 4 && ((*pre(pre(it))) - *pre(it) ^ *it - (*pre(it))) >= 0) ss.erase(pre(it));
+    }
+    // 判断加入了这个点后...
+    bool tryToInsert(Pt x) {
+        // 能否成功加入这个点
+        if (is_in(x)) return false;
+        x = x - o;
+        auto [it, _] = ss.insert(x);
+        // 是否会删除其他的点
+        if (ss.size() >= 4 && ((*it - (*nxt(it)) ^ (*nxt(nxt(it))) - *nxt(it)) >= 0 || ((*pre(pre(it))) - *pre(it) ^ *it - (*pre(it))) >= 0)) {
+            ss.erase(x);
+            return 0;
+        }
+        ss.erase(x);
+        return 1;
+    }
+    // 强制擦除点
+    // 注意如果 erase 导致凸包重心转移，需要重新创建新的凸包
+    void erase(Pt x) {
+        x = x - o;
+        ss.erase(x);
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+    int n;
+    cin >> n;
+    vector<int> op(n + 1);
+    vector<Pt> pts(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> op[i] >> pts[i].x >> pts[i].y;
+        pts[i] = pts[i] * 3;
+    }
+    DynamicConvex D(pts[1], pts[2], pts[3]);
+    for (int i = 4; i <= n; i++) {
+        if (op[i] == 1) { // 添加
+            D.insert(pts[i]);
+        } else { // 查询
+            if (D.is_in(pts[i])) {
+                cout << "YES\n";
+            } else {
+                cout << "NO\n";
+            }
+        }
+    }
+    return 0;
+}
+```
+## 动态凸包重构
+**计算能构成凸包的连续区间数**
+```cpp
+// 2025 HDU 多校 10 1005
+#include <bits/stdc++.h>
+using ld = long double;
+using i64 = long long;
+using namespace std;
+
+// 有浮点数但是大部分都是 i64 时，可以选择用 pair<ld, ld> 替换必需内容
+// 然后删去强制浮点数的函数，改用手写 pair<ld, ld> 替代。
+using T = i64; // 全局数据类型
+
+const T eps = 1e-12;
+const T INF = numeric_limits<T>::max();
+const T PI = acosl(-1);
+#define setp(x) cout << fixed << setprecision(x)
+
+// 点与向量
+struct Pt {
+    T x, y;
+    bool operator==(const Pt &a) const { return (abs(x - a.x) <= eps && abs(y - a.y) <= eps); }
+    bool operator!=(const Pt &a) const { return !(*this == a); }
+    bool operator<(const Pt &a) const {
+        if (abs(x - a.x) <= eps) return y < a.y - eps;
+        return x < a.x - eps;
+    }
+    bool operator>(const Pt &a) const { return !(*this < a || *this == a); }
+    Pt operator+(const Pt &a) const { return {x + a.x, y + a.y}; }
+    Pt operator-(const Pt &a) const { return {x - a.x, y - a.y}; }
+    Pt operator-() const { return {-x, -y}; }
+    Pt operator*(const T k) const { return {k * x, k * y}; }
+    Pt operator/(const T k) const { return {x / k, y / k}; }
+    T operator*(const Pt &a) const { return x * a.x + y * a.y; } // 点积
+    T operator^(const Pt &a) const { return x * a.y - y * a.x; } // 叉积，注意优先级
+    int toleft(const Pt &a) const {
+        const auto t = (*this) ^ a;
+        return (t > eps) - (t < -eps);
+    } // to-left 测试
+    T len2() const { return (*this) * (*this); }               // 向量长度的平方
+    T dis2(const Pt &a) const { return (a - (*this)).len2(); } // 两点距离的平方
+    // 0:原点 | 1:x轴正 | 2:第一象限
+    // 3:y轴正 | 4:第二象限 | 5:x轴负
+    // 6:第三象限 | 7:y轴负 | 8:第四象限
+    int quad() const {
+        if (abs(x) <= eps && abs(y) <= eps) return 0;
+        if (abs(y) <= eps) return x > eps ? 1 : 5;
+        if (abs(x) <= eps) return y > eps ? 3 : 7;
+        return y > eps ? (x > eps ? 2 : 4) : (x > eps ? 8 : 6);
+    }
+};
+
+// 极角排序
+struct Argcmp {
+    bool operator()(const Pt &a, const Pt &b) const {
+        const int qa = a.quad(), qb = b.quad();
+        if (qa != qb) return qa < qb;
+        const auto t = a ^ b;
+        // 不同长度的向量需要分开
+        if (abs(t) <= eps) return a * a < b * b - eps;
+        return t > eps;
+    }
+};
+
+// 注意整数时需要全体坐标在外面 * 3，才能保证准确
+// 注意要把 Argcmp 的 区分长度注释解除
+struct DynamicConvex {
+    Pt o;
+    set<Pt, Argcmp> ss;
+    using iter = set<Pt, Argcmp>::iterator;
+    DynamicConvex(const Pt &a, const Pt &b, const Pt &c) {
+        o = (a + b + c) / 3;
+        ss.insert(a - o);
+        ss.insert(b - o);
+        ss.insert(c - o);
+    }
+    iter pre(iter it) const { return it == ss.begin() ? --ss.end() : (--it); }
+    iter nxt(iter it) const { return (++it) == ss.end() ? ss.begin() : it; }
+    // -1 点在多边形边上 | 0 点在多边形外 | 1 点在多边形内
+    int is_in(Pt x) const {
+        x = x - o;
+        auto it = ss.lower_bound(x);
+        if (it != ss.end() && (*it ^ x) == 0) return x * x <= *it * *it;
+        iter l = pre(it);
+        iter r = (it == ss.end()) ? ss.begin() : it;
+        T res = (*l - x ^ *r - x);
+        if (abs(res) <= eps) return -1;
+        return res > 0;
+    }
+    void insert(Pt x) {
+        // if (is_in(x) == 1) return;
+        x = x - o;
+        auto [it, _] = ss.insert(x);
+        while (ss.size() >= 4 && (*it - (*nxt(it)) ^ (*nxt(nxt(it))) - *nxt(it)) > 0) ss.erase(nxt(it));
+        while (ss.size() >= 4 && ((*pre(pre(it))) - *pre(it) ^ *it - (*pre(it))) > 0) ss.erase(pre(it));
+    }
+    bool tryToInsert(Pt x) {
+        if (is_in(x) == 1) return false;
+        x = x - o;
+        auto [it, _] = ss.insert(x);
+        if (ss.size() >= 4 && ((*it - (*nxt(it)) ^ (*nxt(nxt(it))) - *nxt(it)) > 0 || ((*pre(pre(it))) - *pre(it) ^ *it - (*pre(it))) > 0)) {
+            ss.erase(x);
+            return 0;
+        }
+        ss.erase(x);
+        return 1;
+    }
+    // 注意如果 erase 导致凸包重心转移，需要重新创建新的凸包
+    void erase(Pt x) {
+        x = x - o;
+        ss.erase(x);
+    }
+};
+
+void solve(int tt) {
+    int n;
+    cin >> n;
+    vector<Pt> pts(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> pts[i].x >> pts[i].y;
+        pts[i] = pts[i] * 3;
+    }
+    // 最左边不共线的点
+    vector<int> lf(n + 1);
+    int fir = 0;
+    for (int i = 3; i <= n; i++) {
+        if ((pts[i - 2] - pts[i - 1] ^ pts[i] - pts[i - 1]) == 0) {
+            lf[i] = lf[i - 1];
+        } else {
+            lf[i] = i - 2;
+        }
+        if (!fir && lf[i]) fir = i;
+    }
+    if (!fir) {
+        cout << 1LL * n * (n + 1) / 2 << '\n';
+        return;
+    }
+    DynamicConvex D(pts[1], pts[fir - 1], pts[fir]);
+    for (int i = 1; i <= fir; i++) {
+        D.insert(pts[i]);
+    }
+    i64 ans = 1LL * fir * (fir + 1) / 2;
+    for (int mid = 1, L = 1, R = fir + 1; R <= n; R++) {
+        while (L < R && !D.tryToInsert(pts[R])) {
+            D.erase(pts[L]);
+            L++;
+            if (mid < L) { // rebuild
+                D = DynamicConvex(pts[lf[R]], pts[R - 1], pts[R]);
+                mid = lf[R];
+                for (int i = lf[R] + 1; i <= R - 2; i++) {
+                    D.insert(pts[i]);
+                }
+                int newL = lf[R];
+                for (int i = lf[R] - 1; i >= L && D.tryToInsert(pts[i]); i--) {
+                    D.insert(pts[i]);
+                    newL = i;
+                }
+                L = newL;
+                break;
+            }
+        }
+        D.insert(pts[R]);
+        // cout << L << ' ' << R << '\n';
+        ans += R - L + 1;
+    }
+    cout << ans << '\n';
+}
+
+int main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int tt = 1;
+    cin >> tt;
+    for (int i = 1; i <= tt; i++) {
+        solve(i);
+    }
+    return 0;
+}
+
+```
+## 三维基础
+```cpp
+#include <bits/stdc++.h>
+using ld = long double;
+using i64 = long long;
+using namespace std;
+
+using T = ld; // 全局数据类型
+
+const T eps = 1e-12;
+const T INF = numeric_limits<T>::max();
+const T PI = acosl(-1);
+#define setp(x) cout << fixed << setprecision(x)
+
+struct Pt {
+    T x, y, z;
+    bool operator==(const Pt &a) const { return (abs(x - a.x) <= eps && abs(y - a.y) <= eps) && abs(z - a.z) <= eps; }
+    bool operator!=(const Pt &a) const { return !(*this == a); }
+    bool operator<(const Pt &a) const {
+        if (abs(x - a.x) <= eps && abs(y - a.y) <= eps) return z < a.z - eps;
+        if (abs(x - a.x) <= eps) return y < a.y - eps;
+        return x < a.x - eps;
+    }
+    bool operator>(const Pt &a) const { return !(*this < a || *this == a); }
+    Pt operator+(const Pt &a) const { return {x + a.x, y + a.y, z + a.z}; }
+    Pt operator-(const Pt &a) const { return {x - a.x, y - a.y, z - a.z}; }
+    Pt operator-() const { return {-x, -y - z}; }
+    Pt operator*(const T k) const { return {k * x, k * y, k * z}; }
+    Pt operator/(const T k) const { return {x / k, y / k, z / k}; }
+    T operator*(const Pt &a) const { return x * a.x + y * a.y + z * a.z; }
+    // 注意三维叉积是向量
+    Pt operator^(const Pt &a) const { return {y * a.z - z * a.y, z * a.x - x * a.z, x * a.y - y * a.x}; }
+    T len2() const { return (*this) * (*this); }               // 向量长度的平方
+    T dis2(const Pt &a) const { return (a - (*this)).len2(); } // 两点距离的平方
+    // 必须用浮点数
+    T len() const { return sqrtl(len2()); }                                                              // 向量长度
+    T dis(const Pt &a) const { return sqrtl(dis2(a)); }                                                  // 两点距离
+    T ang(const Pt &a) const { return acosl(max(-1.0L, min(1.0L, (*this) * a) / (len() * a.len()))); } // 向量夹角
+    // 自身绕 向量v 逆时针旋转
+    Pt rot(Pt v, const T a) const {
+        v = v / v.len();         // 单位化轴
+        Pt p1 = v * (v * *this); // 平行分量
+        Pt p2 = *this - p1;      // 垂直分量 1
+        if (p2.len() <= eps) return *this;
+        Pt p3 = v ^ p2;                  // 垂直分量 2
+        p3 = p3 * (p2.len() / p3.len()); // 调整成 p2 长度
+        return p1 + p2 * cosl(a) - p3 * sinl(a);
+    }
+};
+
+struct Plane {
+    // 点 法向量
+    Pt p, n;
+    int tofront(const Pt &a) const { // 点在法向量方向
+        T t = (a - p) * n;
+        return (t > eps) - (t < -eps);
+    }
+    // 必须用浮点数
+    T dis(const Pt &a) const { return abs((a - p) * n) / n.len(); }
+    // 求所有点距离平面的最大值：
+    // (所有点的法向量的点积的 max - min) / n.len()
+};
+```
+## 三维凸包
+```cpp
+// O(n²) 增量法求三维凸包
+#include <bits/stdc++.h>
+using namespace std;
+using ld = long double;
+
+const int maxn = 2e3 + 3;
+const ld eps = 1e-12; // 精度要求高一点
+
+int n, m;           // n是总点数，m是凸包中平面的数量
+bool g[maxn][maxn]; // g用来判断一条边被照到几次
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+// 用rand函数来生成一个非常小的随机数
+double rand_eps() {
+    // 用rand生成一个-0.5到0.5之间的数，再乘eps，就得到了一个非常小的随机数
+    return (fmodl(1.0L * rng(), 1.0L) - 0.5L) * eps;
+}
+
+struct Pt {
+    ld x, y, z;
+    // 微小扰动，给每个坐标都加一个极小的随机数
+    void shake() { x += rand_eps(), y += rand_eps(), z += rand_eps(); }
+    Pt operator-(Pt t) { return {x - t.x, y - t.y, z - t.z}; }
+    Pt operator^(Pt t) { return {y * t.z - t.y * z, t.x * z - x * t.z, x * t.y - y * t.x}; }
+    ld operator*(Pt t) { return x * t.x + y * t.y + z * t.z; }
+    ld len() { return sqrtl(x * x + y * y + z * z); }
+} p[maxn]; // p来存所有点
+
+struct Plane {  // 定义平面的结构体
+    int v[3];   // 三个顶点
+    Pt norm() { // 求法向量
+        return (p[v[1]] - p[v[0]]) ^ (p[v[2]] - p[v[0]]);
+    }
+    bool above(Pt t) { // 判断一个点是否在平面上方
+        return ((t - p[v[0]]) * norm()) >= 0;
+    }
+    ld area() { // 求三角形的面积
+        return norm().len() / 2;
+    }
+} plane[maxn], tp[maxn];
+// plane存凸包上的平面，tp用来更新凸包，
+// 每次凸包上要留的平面和新加的平面都存进tp，
+// 要删的平面不存，最后将tp在复制给plane，就实现了凸包的更新
+
+void convex() {
+    plane[m++] = {0, 1, 2};       // 初始化凸包，随便三个点存入，确定最开始的一个平面，这里取得是前三个点
+    plane[m++] = {2, 1, 0};       // 因为不知道第一个平面怎么样是逆时针，所以都存一遍，顺时针存的一会会被删掉
+    for (int i = 3; i < n; i++) { // 从第四个点开始循环每个点
+        int cnt = 0;
+        for (int j = 0; j < m; j++) {       // 循环每个平面
+            bool fg = plane[j].above(p[i]); // 判断这个点是否在该平面上方
+            if (!fg) tp[cnt++] = plane[j];  // 如果是下方的话，说明照不到，存进tp数组
+            for (int k = 0; k < 3; k++) {   // 循环该平面的三条边
+                // ab边照不照得到情况赋值给g[a][b]
+                g[plane[j].v[k]][plane[j].v[(k + 1) % 3]] = fg;
+            }
+        }
+        for (int j = 0; j < m; j++) { // 然后就循环每个平面的每条边
+            for (int k = 0; k < 3; k++) {
+                int a = plane[j].v[k], b = plane[j].v[(k + 1) % 3];
+                // 判断该边是否被照到了一次，即是否是交界线的边
+                // 若是，加新平面abi，ab一定是逆时针的，i在后面
+                if (g[a][b] && !g[b][a]) tp[cnt++] = {a, b, i};
+            }
+        }
+        m = cnt; // 将tp再赋值给plane
+        for (int j = 0; j < m; j++) plane[j] = tp[j];
+    }
+}
+
+int main() {
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        cin >> p[i].x >> p[i].y >> p[i].z; // 输入n个点
+        p[i].shake();                      // 微小扰动
+    }
+    convex();                   // 求三维凸包
+    ld ans = 0;                 // 求面积和
+    for (int i = 0; i < m; i++) // 循环最终凸包上的m个平面
+        ans += plane[i].area(); // 将平面的面积加和
+    cout << fixed << setprecision(3) << ans << '\n';
+
+    return 0;
+}
+```

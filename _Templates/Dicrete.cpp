@@ -5,10 +5,10 @@ struct dicrete {
     }
     int flush() {
         sort(a.begin(), a.end());
-        a.erase(unique(a.begin(), a.end()));
+        a.erase(unique(a.begin(), a.end()), a.end());
         return a.size();
     }
-    int operator[](const i64 &x) {
+    int operator[](i64 x) {
         return lower_bound(a.begin(), a.end(), x) - a.begin() + 1;
     }
 };
