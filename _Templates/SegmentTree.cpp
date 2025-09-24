@@ -2,31 +2,22 @@ struct SegTree {
     struct Node {
         int l, r, v, laz;
     } t[maxn * 4];
-
     int a[maxn];
-
+#define me t[p]
+#define lc t[p << 1]
+#define rc t[p << 1 | 1]
     void pushup(int p) {
-        auto &me = t[p];
-        auto &lc = t[p << 1];
-        auto &rc = t[p << 1 | 1];
         me.v = lc.v + rc.v;
     }
-
     void pushdown(int p) {
-        auto &me = t[p];
-        auto &lc = t[p << 1];
-        auto &rc = t[p << 1 | 1];
-        if (me.laz) {
-            lc.v += me.laz * (lc.r - lc.l + 1);
-            rc.v += me.laz * (rc.r - rc.l + 1);
-            lc.laz += me.laz;
-            rc.laz += me.laz;
-            me.laz = 0;
-        }
+        if (!me.laz) return;
+        lc.v += me.laz * (lc.r - lc.l + 1);
+        rc.v += me.laz * (rc.r - rc.l + 1);
+        lc.laz += me.laz;
+        rc.laz += me.laz;
+        me.laz = 0;
     }
-
     void build(int p, int l, int r) {
-        auto &me = t[p];
         me.l = l, me.r = r;
         me.laz = 0;
         if (l == r) {
@@ -38,9 +29,8 @@ struct SegTree {
         build(p << 1 | 1, mid + 1, r);
         pushup(p);
     }
-
     void add(int p, int l, int r, int d) {
-        auto &me = t[p];
+        if (me.r < l || me.l > r) return;
         if (l <= me.l && me.r <= r) {
             me.v += d * (me.r - me.l + 1);
             me.laz += d;
@@ -54,9 +44,8 @@ struct SegTree {
             add(p << 1 | 1, l, r, d);
         pushup(p);
     }
-
     i64 query(int p, int l, int r) {
-        auto &me = t[p];
+        if (me.r < l || me.l > r) return 0;
         if (l <= me.l && me.r <= r) {
             return me.v; // 别忘了改这里
         }
@@ -73,4 +62,7 @@ struct SegTree {
             ans += query(p << 1 | 1, l, r);
         return ans;
     }
+#undef me
+#undef lc
+#undef rc
 } T;

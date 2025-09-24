@@ -4,13 +4,11 @@ int root = 1;
 vector<int> g[maxn];
 int fa[maxn][__lg(maxn) + 1];
 int dep[maxn], lg2[maxn];
-
 void init() {
     for (int i = 2; i < maxn; i++) {
         lg2[i] = lg2[i / 2] + 1;
     }
 }
-
 void lcadfs(int u, int f) {
     dep[u] = dep[f] + 1;
     fa[u][0] = f;
@@ -22,7 +20,6 @@ void lcadfs(int u, int f) {
         lcadfs(v, u);
     }
 }
-
 void lcabuild(int n) {
     for (int i = 0; i <= n; i++) {
         dep[i] = 0;
@@ -32,7 +29,6 @@ void lcabuild(int n) {
     }
     lcadfs(root, 0);
 }
-
 int LCA(int x, int y) {
     if (dep[x] < dep[y]) {
         swap(x, y);
@@ -50,7 +46,6 @@ int LCA(int x, int y) {
     }
     return fa[x][0];
 }
-
 int dist(int x, int y) {
     return dep[x] + dep[y] - 2 * dep[LCA(x, y)];
 }
