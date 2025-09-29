@@ -193,6 +193,21 @@ struct Polygon {
         for (int i = 0; i < p.size(); i++) sum += p[i].dis(p[ne(i)]);
         return sum;
     }
+    // 预处理多边形周长前缀和
+    vector<T> s;
+    void build_circ() {
+        int n = p.size();
+        s.resize(n * 2);
+        for (int i = 1; i < 2 * n; i++) {
+            int j = i % n;
+            s[i] = s[i - 1] + p[j].dis(p[pre(j)]);
+        }
+    }
+    // O(1) 查询多边形 逆时针从 i ~ j 这部分周长
+    T query_circ(int i, int j) const {
+        if (i > j) j += p.size();
+        return s[j] - s[i];
+    }
 };
 
 // 凸多边形
