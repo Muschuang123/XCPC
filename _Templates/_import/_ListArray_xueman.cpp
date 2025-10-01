@@ -35,40 +35,29 @@ void remove(int k) // 删除下标为 k 的结点
     l[r[k]] = l[k];
 }
 
-int main()
-{
+int main() {
     init(); // 不要忘了初始化
 
     int m;
     scanf("%d", &m);
 
-    while (m--)
-    {
+    while (m--) {
         int k, x;
         string op;
         cin >> op;
-        if (op == "L")
-        {
+        if (op == "L") {
             cin >> x;
             add(0, x);
-        }
-        else if (op == "R")
-        {
+        } else if (op == "R") {
             cin >> x;
             add(l[1], x);
-        }
-        else if (op == "D")
-        {
+        } else if (op == "D") {
             cin >> k;
             remove(k + 1); // 注意下标的转换
-        }
-        else if (op == "IL")
-        {
+        } else if (op == "IL") {
             cin >> k >> x;
             add(l[k + 1], x); // 注意下标的转换
-        }
-        else if (op == "IR")
-        {
+        } else if (op == "IR") {
             cin >> k >> x;
             add(k + 1, x); // 注意下标的转换
         }
