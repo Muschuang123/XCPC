@@ -1,4 +1,8 @@
+>>> 注意打印的时候字体大小调到 100%
 Time | 程序用时测量
 SegmentTree | 线段树可以考虑重新打印，改动较多
 2D | 处理多边形分段周长前缀和
 LagrangePoly | 拉格朗日插值
+CustomHash | 自定义umap哈希
+Frac | 分数类
+2D | cin << long double

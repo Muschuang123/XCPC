@@ -13,6 +13,13 @@ const T PI = acosl(-1); // 注意一旦使用 T = i64，PI 就是 3LL ！！！
 #define setp(x) cout << fixed << setprecision(x)
 int sgn(T x) { return x < -eps ? -1 : x > eps; }
 
+istream &operator<<(istream &is, ld &x) {
+    int t;
+    is >> t;
+    x = (ld)t;
+    return is;
+}
+
 // 点与向量
 struct Pt {
     T x, y;
