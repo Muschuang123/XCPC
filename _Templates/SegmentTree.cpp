@@ -62,6 +62,35 @@ struct SegTree {
             ans += query(p << 1 | 1, l, r);
         return ans;
     }
+    // 普通线段树寻找第 1 个...
+    // 全局线段树寻找第 k 个...
+    // 1. 处理 找不到 的情况
+    // 2. me.l == me.r 为结束状态
+    // 3. 涉及到查询或修改，需要提前 pushdown
+    // 4. 先找左边，再找右边
+    // 5. 涉及到修改，需要最后 pushup
+    // 示例 1 :
+    // 维护最小值 v 时，找到第一个 v < 0 的下标，找不到返回 inf
+    // int find(int p) {
+    //     if (me.v >= 0) return inf; // 未找到
+    //     if (me.l == me.r) return me.l;
+    //     pushdown(p);
+    //     if (lc.v < 0) return find(p << 1);
+    //     return find(p << 1 | 1);
+    // }
+    // 示例 2 :
+    // 作为权值线段树，找到第 k 大的数字后，并把它的数量 -1
+    // int find(int p, int k) {
+    //     if (k > me.v) return -1; // 未找到
+    //     if (me.l == me.r) {
+    //         me.v--;
+    //         return me.l;
+    //     }
+    //     pushdown(p);
+    //     int res = lc.v >= k ? find(p << 1, k) : find(p << 1 | 1, k - lc.v);
+    //     pushup(p);
+    //     return res;
+    // }
 #undef me
 #undef lc
 #undef rc

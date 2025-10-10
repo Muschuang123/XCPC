@@ -7,14 +7,15 @@ int B;
 i64 res = 0;
 vector<int> c;
 
-struct Q {
+struct qu {
     int l, r, i;
 };
 
-bool operator<(const Q &a, const Q &b) {
+bool operator<(const qu &a, const qu &b) {
     if (a.l / B != b.l / B) {
         return a.l < b.l;
     } else {
+        if (a.l / B % 2) return a.r > b.r;
         return a.r < b.r;
     }
 }
@@ -43,7 +44,7 @@ int main() {
         cin >> a[i];
     }
 
-    vector<Q> q(m + 1);
+    vector<qu> q(m + 1);
     for (int i = 1; i <= m; i++) {
         cin >> q[i].l >> q[i].r;
         q[i].i = i;

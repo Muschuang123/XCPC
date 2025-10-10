@@ -14,10 +14,19 @@ const T PI = acosl(-1); // 注意一旦使用 T = i64，PI 就是 3LL ！！！
 int sgn(T x) { return x < -eps ? -1 : x > eps; }
 
 istream &operator<<(istream &is, ld &x) {
-    int t;
+    i64 t;
     is >> t;
     x = (ld)t;
     return is;
+}
+
+void map_add(map<ld, int> &mp, const ld &k, const int &v) {
+    auto it = mp.lower_bound(k - eps);
+    if (it != mp.end() && abs(it->first - k) <= eps) {
+        it->second += v;
+    } else {
+        mp[k] += v;
+    }
 }
 
 // 点与向量
@@ -143,7 +152,7 @@ struct St {
         if (is_inter(s)) return 0;
         return min({dis(s.a), dis(s.b), s.dis(a), s.dis(b)});
     }
-    // 计算线段的中垂线
+    // 计算线段的中垂线（必须用浮点数）
     Lt midperp() const {
         Pt mid = (a + b) / 2; // 线段中点
         Pt vec = b - a;
@@ -173,6 +182,13 @@ struct Polygon {
         }
         return {false, cnt};
     }
+    // 多边形面积的两倍
+    // 可用于判断点的存储顺序是顺时针或逆时针
+    T area() const {
+        T sum = 0;
+        for (int i = 0; i < p.size(); i++) sum += p[i] ^ p[ne(i)];
+        return sum;
+    }
     // 计算多边形内（不包括边上）的网格点数（必须用整数）
     i64 calc_pts_in_polygon() const {
         i64 S = 0, C = 0;
@@ -187,20 +203,13 @@ struct Polygon {
         // S = I + C / 2 - 1
         return S - C / 2 + 1;
     }
-    // 多边形面积的两倍
-    // 可用于判断点的存储顺序是顺时针或逆时针
-    T area() const {
-        T sum = 0;
-        for (int i = 0; i < p.size(); i++) sum += p[i] ^ p[ne(i)];
-        return sum;
-    }
-    // 多边形的周长
+    // 多边形的周长（必须用浮点数）
     T circ() const {
         T sum = 0;
         for (int i = 0; i < p.size(); i++) sum += p[i].dis(p[ne(i)]);
         return sum;
     }
-    // 预处理多边形周长前缀和
+    // 预处理多边形周长前缀和（必须用浮点数）
     vector<T> s;
     void build_circ() {
         int n = p.size();
@@ -210,7 +219,7 @@ struct Polygon {
             s[i] = s[i - 1] + p[j].dis(p[pre(j)]);
         }
     }
-    // O(1) 查询多边形 逆时针从 i ~ j 这部分周长
+    // O(1) 查询多边形 逆时针从 i ~ j 这部分周长（必须用浮点数）
     T query_circ(int i, int j) const {
         if (i > j) j += p.size();
         return s[j] - s[i];
