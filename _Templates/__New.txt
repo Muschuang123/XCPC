@@ -8,3 +8,5 @@ Frac | 分数类
 2D | cin << long double
 2D | map_add 保证了 map 中不会有 abs <= eps 的 long double
 SegmentTree | find 函数书写示例
+3D | 三维几何基础大合集 繁凡的《计算几何全家桶（三）》.pdf
+TernarySearch | 之前的版本是错的
